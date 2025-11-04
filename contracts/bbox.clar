@@ -17,9 +17,6 @@
 (define-constant err-invalid-token (err u108))
 (define-constant err-already-voted (err u109))
 
-;; sBTC Token Contract (Testnet)
-(define-constant sbtc-token 'ST1F7QA2MDF17S807EPA36TSS8AMEFY4KA9TVGWXT.sbtc-token)
-
 ;; ============================================
 ;; Data Variables
 ;; ============================================
@@ -112,8 +109,8 @@
 (define-private (process-listing-fee (payer principal))
   (let ((fee (var-get listing-fee-sbtc)))
     (if (> fee u0)
-      ;; Transfer sBTC from payer to admin using constant
-      (match (contract-call? sbtc-token transfer 
+      ;; Transfer sBTC from payer to admin
+      (match (contract-call? 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sbtc-token transfer 
         fee 
         payer 
         (var-get admin) 
@@ -137,7 +134,7 @@
     (
       (app-id (increment-app-nonce))
       (caller tx-sender)
-      (current-block block-height)
+      (current-block stacks-block-height)
     )
     ;; Process listing fee
     (try! (process-listing-fee caller))
@@ -192,7 +189,7 @@
       { app-id: app-id }
       (merge app-data {
         ipfs-hash: new-ipfs-hash,
-        updated-at: block-height
+        updated-at: stacks-block-height
       })
     )
     (ok true)
@@ -212,7 +209,7 @@
     (
       (app-data (unwrap! (map-get? apps { app-id: app-id }) err-not-found))
       (voter tx-sender)
-      (current-block block-height)
+      (current-block stacks-block-height)
       (is-upvote (is-eq vote-type "upvote"))
     )
     ;; Check if app is active
@@ -256,7 +253,7 @@
     (
       (app-data (unwrap! (map-get? apps { app-id: app-id }) err-not-found))
       (voter tx-sender)
-      (current-block block-height)
+      (current-block stacks-block-height)
       (existing-rating (map-get? user-ratings { voter: voter, app-id: app-id }))
     )
     ;; Validate rating
@@ -324,7 +321,7 @@
       { app-id: app-id }
       (merge app-data {
         status: "active",
-        updated-at: block-height
+        updated-at: stacks-block-height
       })
     )
     (ok true)
@@ -340,7 +337,7 @@
       { app-id: app-id }
       (merge app-data {
         status: "suspended",
-        updated-at: block-height
+        updated-at: stacks-block-height
       })
     )
     (ok true)
@@ -356,7 +353,7 @@
       { app-id: app-id }
       (merge app-data {
         verified: verified,
-        updated-at: block-height
+        updated-at: stacks-block-height
       })
     )
     (ok true)
@@ -372,7 +369,7 @@
       { app-id: app-id }
       (merge app-data {
         featured: featured,
-        updated-at: block-height
+        updated-at: stacks-block-height
       })
     )
     (ok true)
