@@ -1,0 +1,19 @@
+{
+  "name": "bbox",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@hirosystems/clarinet-sdk": "^3.6.1",
+    "@stacks/transactions": "^7.2.0"
+  }
+}

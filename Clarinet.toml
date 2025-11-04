@@ -1,0 +1,16 @@
+[project]
+name = "bbox"
+description = "Our Open Bitcoin App Store"
+authors = ["fabohax"]
+telemetry = true
+cache_dir = "./.cache"
+requirements = []
+
+[repl.analysis]
+passes = ["check_checker"]
+check_checker = { trusted_sender = false, trusted_caller = false, callee_filter = false }
+
+[contracts.bbox]
+path = "contracts/bbox.clar"
+clarity_version = 2
+epoch = 2.4
