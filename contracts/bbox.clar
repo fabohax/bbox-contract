@@ -22,7 +22,8 @@
 ;; ============================================
 
 (define-data-var admin principal contract-owner)
-(define-data-var listing-fee-sbtc uint u111111) ;; 111111 satoshis in sBTC
+(define-data-var listing-fee-sbtc uint u100) ;; 100 satoshis in sBTC
+(define-data-var listing-fee-enforced bool false) ;; Allow disabling enforcement on testnet by default
 (define-data-var app-id-nonce uint u0)
 (define-data-var total-apps uint u0)
 
@@ -107,16 +108,28 @@
 )
 
 (define-private (process-listing-fee (payer principal))
-  (let ((fee (var-get listing-fee-sbtc)))
+  (let ((fee (var-get listing-fee-sbtc))
+        (enforce? (var-get listing-fee-enforced)))
     (if (> fee u0)
-      ;; Transfer sBTC from payer to admin
       (match (contract-call? 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sbtc-token transfer 
         fee 
         payer 
         (var-get admin) 
         none)
         success (ok true)
-        error (err err-payment-failed)
+        transfer-error 
+          (begin
+            (print {
+              event: "listing-fee-transfer-failed",
+              payer: payer,
+              amount: fee,
+              error: transfer-error
+            })
+            (if enforce?
+              (err err-payment-failed)
+              (ok true)
+            )
+          )
       )
       (ok true)
     )
@@ -382,6 +395,14 @@
     (asserts! (is-admin tx-sender) err-owner-only)
     (var-set listing-fee-sbtc new-fee)
     (ok true)
+  )
+)
+
+(define-public (set-listing-fee-enforcement (enforced bool))
+  (begin
+    (asserts! (is-admin tx-sender) err-owner-only)
+    (var-set listing-fee-enforced enforced)
+    (ok enforced)
   )
 )
 
